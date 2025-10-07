@@ -142,7 +142,6 @@ public class DeckActivity extends AppCompatActivity implements CardAdapter.OnCar
     
     @Override
     public void onCardClick(Card card) {
-        // Could show card details or edit dialog
         Toast.makeText(this, "Card: " + card.getFrontText(), Toast.LENGTH_SHORT).show();
     }
     
@@ -153,9 +152,9 @@ public class DeckActivity extends AppCompatActivity implements CardAdapter.OnCar
             public void onResponse(Call<ApiResponse<Card>> call, Response<ApiResponse<Card>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     card.setMemorized(!card.isMemorized());
-                    Toast.makeText(DeckActivity.this, 
-                            card.isMemorized() ? "Marked as memorized" : "Marked as not memorized", 
-                            Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(DeckActivity.this, 
+                    //         card.isMemorized() ? "Marked as memorized" : "Marked as not memorized", 
+                    //         Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(DeckActivity.this, "Failed to update", Toast.LENGTH_SHORT).show();
                     loadCards();

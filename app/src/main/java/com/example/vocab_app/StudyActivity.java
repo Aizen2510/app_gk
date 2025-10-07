@@ -60,7 +60,8 @@ public class StudyActivity extends AppCompatActivity {
     }
     
     private void loadStudyCards() {
-        apiService.getStudyCards(deckId).enqueue(new Callback<ApiResponse<List<Card>>>() {
+        apiService.getCards(deckId, 1, 100, null, null, "createdAt", "desc")
+                .enqueue(new Callback<ApiResponse<List<Card>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<Card>>> call, Response<ApiResponse<List<Card>>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -73,16 +74,19 @@ public class StudyActivity extends AppCompatActivity {
                         } else {
                             showCard();
                         }
+                    } else {
+                        Toast.makeText(StudyActivity.this, "Error: " + apiResponse.getMessage(), Toast.LENGTH_LONG).show();
+                        finish();
                     }
                 } else {
-                    Toast.makeText(StudyActivity.this, "Failed to load study cards", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(StudyActivity.this, "Failed to load study cards (Code: " + response.code() + ")", Toast.LENGTH_LONG).show();
                     finish();
                 }
             }
             
             @Override
             public void onFailure(Call<ApiResponse<List<Card>>> call, Throwable t) {
-                Toast.makeText(StudyActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(StudyActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
                 finish();
             }
         });
@@ -106,7 +110,8 @@ public class StudyActivity extends AppCompatActivity {
     private void flipCard() {
         if (cards.isEmpty()) return;
         
-        // Simple flip animation
+        // binding.flashcard.setClickable(false);
+        // binding.flashcard.setEnabled(false);
         binding.flashcard.animate()
                 .scaleX(0f)
                 .setDuration(150)
