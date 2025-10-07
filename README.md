@@ -2,6 +2,9 @@
 
 A simple Android vocabulary app to create decks of flashcards and study them.
 
+## TODO
+study by memorized/unmemorized status
+
 ## Dependencies
 - Retrofit 2.9.0: REST API client
 - OkHttp 4.12.0: HTTP client with logging
