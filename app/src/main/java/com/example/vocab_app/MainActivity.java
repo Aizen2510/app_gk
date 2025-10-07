@@ -17,8 +17,9 @@ import com.example.vocab_app.api.ApiService;
 import com.example.vocab_app.databinding.ActivityMainBinding;
 import com.example.vocab_app.models.ApiResponse;
 import com.example.vocab_app.models.Deck;
-import com.example.vocab_app.models.PaginatedResponse;
 import com.example.vocab_app.models.requests.CreateDeckRequest;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -70,16 +71,16 @@ public class MainActivity extends AppCompatActivity implements DeckAdapter.OnDec
         binding.swipeRefresh.setRefreshing(true);
         
         apiService.getDecks(1, 100, null, "createdAt", "desc")
-                .enqueue(new Callback<ApiResponse<PaginatedResponse<Deck>>>() {
+                .enqueue(new Callback<ApiResponse<List<Deck>>>() {
             @Override
-            public void onResponse(Call<ApiResponse<PaginatedResponse<Deck>>> call, 
-                                 Response<ApiResponse<PaginatedResponse<Deck>>> response) {
+            public void onResponse(Call<ApiResponse<List<Deck>>> call, 
+                                 Response<ApiResponse<List<Deck>>> response) {
                 binding.swipeRefresh.setRefreshing(false);
                 
                 if (response.isSuccessful() && response.body() != null) {
-                    ApiResponse<PaginatedResponse<Deck>> apiResponse = response.body();
+                    ApiResponse<List<Deck>> apiResponse = response.body();
                     if (apiResponse.isSuccess() && apiResponse.getData() != null) {
-                        adapter.setDecks(apiResponse.getData().getItems());
+                        adapter.setDecks(apiResponse.getData());
                     }
                 } else {
                     Toast.makeText(MainActivity.this, "Failed to load decks", Toast.LENGTH_SHORT).show();
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements DeckAdapter.OnDec
             }
             
             @Override
-            public void onFailure(Call<ApiResponse<PaginatedResponse<Deck>>> call, Throwable t) {
+            public void onFailure(Call<ApiResponse<List<Deck>>> call, Throwable t) {
                 binding.swipeRefresh.setRefreshing(false);
                 Toast.makeText(MainActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }

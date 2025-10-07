@@ -15,8 +15,9 @@ import com.example.vocab_app.api.ApiService;
 import com.example.vocab_app.databinding.ActivityDeckBinding;
 import com.example.vocab_app.models.ApiResponse;
 import com.example.vocab_app.models.Card;
-import com.example.vocab_app.models.PaginatedResponse;
 import com.example.vocab_app.models.requests.CreateCardRequest;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -64,16 +65,16 @@ public class DeckActivity extends AppCompatActivity implements CardAdapter.OnCar
         binding.swipeRefresh.setRefreshing(true);
         
         apiService.getCards(deckId, 1, 100, null, null, "createdAt", "desc")
-                .enqueue(new Callback<ApiResponse<PaginatedResponse<Card>>>() {
+                .enqueue(new Callback<ApiResponse<List<Card>>>() {
             @Override
-            public void onResponse(Call<ApiResponse<PaginatedResponse<Card>>> call, 
-                                 Response<ApiResponse<PaginatedResponse<Card>>> response) {
+            public void onResponse(Call<ApiResponse<List<Card>>> call, 
+                                 Response<ApiResponse<List<Card>>> response) {
                 binding.swipeRefresh.setRefreshing(false);
                 
                 if (response.isSuccessful() && response.body() != null) {
-                    ApiResponse<PaginatedResponse<Card>> apiResponse = response.body();
+                    ApiResponse<List<Card>> apiResponse = response.body();
                     if (apiResponse.isSuccess() && apiResponse.getData() != null) {
-                        adapter.setCards(apiResponse.getData().getItems());
+                        adapter.setCards(apiResponse.getData());
                     }
                 } else {
                     Toast.makeText(DeckActivity.this, "Failed to load cards", Toast.LENGTH_SHORT).show();
@@ -81,7 +82,7 @@ public class DeckActivity extends AppCompatActivity implements CardAdapter.OnCar
             }
             
             @Override
-            public void onFailure(Call<ApiResponse<PaginatedResponse<Card>>> call, Throwable t) {
+            public void onFailure(Call<ApiResponse<List<Card>>> call, Throwable t) {
                 binding.swipeRefresh.setRefreshing(false);
                 Toast.makeText(DeckActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }

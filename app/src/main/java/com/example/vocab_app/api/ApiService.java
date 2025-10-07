@@ -28,7 +28,7 @@ public interface ApiService {
     Call<ApiResponse<Deck>> createDeck(@Body CreateDeckRequest request);
     
     @GET("api/decks")
-    Call<ApiResponse<PaginatedResponse<Deck>>> getDecks(
+    Call<ApiResponse<List<Deck>>> getDecks(
         @Query("page") int page,
         @Query("limit") int limit,
         @Query("search") String search,
@@ -50,7 +50,7 @@ public interface ApiService {
     Call<ApiResponse<Card>> createCard(@Path("deckId") String deckId, @Body CreateCardRequest request);
     
     @GET("api/decks/{deckId}/cards")
-    Call<ApiResponse<PaginatedResponse<Card>>> getCards(
+    Call<ApiResponse<List<Card>>> getCards(
         @Path("deckId") String deckId,
         @Query("page") int page,
         @Query("limit") int limit,
