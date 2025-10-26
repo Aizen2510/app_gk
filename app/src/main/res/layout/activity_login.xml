@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp"
+        android:padding="20dp"
         android:gravity="center">
 
         <TextView
@@ -19,8 +19,8 @@
             android:text="Vocab App"
             android:textSize="32sp"
             android:textStyle="bold"
-            android:textColor="?attr/colorPrimary"
-            android:layout_marginTop="48dp"
+            android:textColor="@color/green2"
+            android:layout_marginTop="30dp"
             android:layout_marginBottom="8dp"/>
 
         <TextView
@@ -29,7 +29,14 @@
             android:text="Learn vocabulary with flashcards"
             android:textSize="14sp"
             android:textColor="?android:attr/textColorSecondary"
-            android:layout_marginBottom="48dp"/>
+            android:layout_marginBottom="30dp"/>
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="201dp"
+            android:layout_marginBottom="20dp"
+            app:srcCompat="@drawable/book_lover_bro" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -67,6 +74,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Login"
+            app:backgroundTint="@color/green2"
             android:padding="16dp"
             android:textSize="16sp"/>
 
@@ -75,6 +83,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Create Account"
+            android:textColor="@color/green2"
             android:padding="16dp"
             android:textSize="16sp"
             style="@style/Widget.Material3.Button.OutlinedButton"
@@ -86,6 +95,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:visibility="gone"/>
+
+
 
     </LinearLayout>
 </ScrollView>

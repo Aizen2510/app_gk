@@ -8,6 +8,7 @@
     app:cardCornerRadius="8dp">
 
     <LinearLayout
+        android:background="@color/grey"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -47,17 +48,17 @@
                 android:drawableStart="@android:drawable/ic_menu_sort_by_size"
                 android:drawablePadding="10dp"
                 android:text="0 cards"
-                android:textColor="?attr/colorPrimary"
+                android:textColor="@color/green2"
                 android:textSize="16sp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/studyButton"
-                style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="wrap_content"
                 android:layout_height="37dp"
                 android:minWidth="64dp"
                 android:padding="0dp"
                 android:text="Study"
+                app:backgroundTint="@color/green2"
                 android:textSize="12sp" />
 
         </LinearLayout>

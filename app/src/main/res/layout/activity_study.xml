@@ -12,7 +12,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="@color/green2"
             app:title="Study Mode"
             app:titleTextColor="@android:color/white"
             app:navigationIcon="@android:drawable/ic_menu_revert"/>
@@ -49,6 +49,7 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:background="@color/grey"
                 android:padding="32dp">
 
                 <TextView
@@ -57,7 +58,7 @@
                     android:layout_height="wrap_content"
                     android:text="Front"
                     android:textSize="14sp"
-                    android:textColor="?attr/colorPrimary"
+                    android:textColor="@color/green2"
                     android:textStyle="bold"
                     android:layout_marginBottom="24dp"/>
 
@@ -99,6 +100,7 @@
                 android:layout_weight="1"
                 android:text="Previous"
                 android:layout_marginEnd="8dp"
+                android:textColor="@color/green2"
                 style="@style/Widget.Material3.Button.OutlinedButton"/>
 
             <com.google.android.material.button.MaterialButton
@@ -106,6 +108,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                app:backgroundTint="@color/green2"
                 android:text="Next"
                 android:layout_marginStart="8dp"/>
 
