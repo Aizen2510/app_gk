@@ -74,4 +74,20 @@ public interface ApiService {
     
     @GET("api/decks/{deckId}/study")
     Call<ApiResponse<List<Card>>> getStudyCards(@Path("deckId") String deckId);
+
+    // Stats endpoint
+    @GET("api/decks/{deckId}/stats")
+    Call<ApiResponse<DeckStats>> getDeckStats(@Path("deckId") String deckId);
+
+    // Search endpoints
+    @GET("api/decks/search")
+    Call<ApiResponse<List<Deck>>> searchDecks(@Query("q") String query,
+                                              @Query("page") Integer page,
+                                              @Query("limit") Integer limit);
+
+    @GET("api/cards/search")
+    Call<ApiResponse<List<Card>>> searchCards(@Query("deckId") String deckId,
+                                              @Query("q") String query,
+                                              @Query("page") Integer page,
+                                              @Query("limit") Integer limit);
 }

@@ -3,6 +3,7 @@ package com.example.vocab_app;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -10,12 +11,15 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.vocab_app.adapters.CardAdapter;
+import android.view.Menu;
+import android.view.MenuItem;
 import com.example.vocab_app.api.ApiClient;
 import com.example.vocab_app.api.ApiService;
 import com.example.vocab_app.databinding.ActivityDeckBinding;
 import com.example.vocab_app.models.ApiResponse;
 import com.example.vocab_app.models.Card;
 import com.example.vocab_app.models.requests.CreateCardRequest;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.List;
 
@@ -57,10 +61,70 @@ public class DeckActivity extends AppCompatActivity implements CardAdapter.OnCar
         
         binding.addCardFab.setOnClickListener(v -> showAddCardDialog());
         binding.swipeRefresh.setOnRefreshListener(() -> loadCards());
+
+        binding.searchCardInput.setOnEditorActionListener((v, actionId, event) -> {
+            doSearchCards();
+            return true;
+        });
+        binding.searchCardInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(android.text.Editable s) {
+                if (s.toString().trim().isEmpty()) {
+                    loadCards();
+                }
+            }
+        });
         
         loadCards();
     }
-    
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    private void doSearchCards() {
+        String q = binding.searchCardInput.getText().toString().trim();
+        if (q.isEmpty()) {
+            loadCards();
+            return;
+        }
+        binding.swipeRefresh.setRefreshing(true);
+        apiService.searchCards(deckId, q, 1, 100).enqueue(new Callback<ApiResponse<List<Card>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Card>>> call, Response<ApiResponse<List<Card>>> response) {
+                binding.swipeRefresh.setRefreshing(false);
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    List<Card> cards = response.body().getData();
+                    adapter.setCards(cards);
+                } else {
+                    Toast.makeText(DeckActivity.this, "Search failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Card>>> call, Throwable t) {
+                binding.swipeRefresh.setRefreshing(false);
+                Toast.makeText(DeckActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.statistical) {
+            Toast.makeText(this, "Opening statistics...", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, StatsActivity.class);
+            intent.putExtra("DECK_ID", deckId);
+            intent.putExtra("DECK_NAME", deckName);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void loadCards() {
         binding.swipeRefresh.setRefreshing(true);
         
@@ -88,38 +152,40 @@ public class DeckActivity extends AppCompatActivity implements CardAdapter.OnCar
             }
         });
     }
-    
+
     private void showAddCardDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Create New Card");
-        
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 20, 50, 20);
-        
-        EditText frontInput = new EditText(this);
-        frontInput.setHint("Front Text (Question)");
-        layout.addView(frontInput);
-        
-        EditText backInput = new EditText(this);
-        backInput.setHint("Back Text (Answer)");
-        layout.addView(backInput);
-        
-        builder.setView(layout);
-        builder.setPositiveButton("Create", (dialog, which) -> {
+        // Inflate layout
+        View dialogView = getLayoutInflater().inflate(R.layout.input_card, null);
+
+        // Ánh xạ view
+        TextInputEditText frontInput = dialogView.findViewById(R.id.inputFrontText);
+        TextInputEditText backInput = dialogView.findViewById(R.id.inputBackText);
+
+        // Tạo dialog
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Create New Card")
+                .setView(dialogView)
+                .setPositiveButton("Create", null) // để override hành vi sau
+                .setNegativeButton("Cancel", (d, w) -> d.dismiss())
+                .create();
+
+        dialog.show();
+
+        // Ghi đè hành vi nút "Create" (để kiểm tra input trước khi đóng dialog)
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String front = frontInput.getText().toString().trim();
             String back = backInput.getText().toString().trim();
-            
-            if (!front.isEmpty() && !back.isEmpty()) {
-                createCard(front, back);
-            } else {
+
+            if (front.isEmpty() || back.isEmpty()) {
                 Toast.makeText(this, "Please fill both fields", Toast.LENGTH_SHORT).show();
+            } else {
+                createCard(front, back);
+                dialog.dismiss();
             }
         });
-        builder.setNegativeButton("Cancel", null);
-        builder.show();
     }
-    
+
+
     private void createCard(String frontText, String backText) {
         CreateCardRequest request = new CreateCardRequest(frontText, backText, false);
         apiService.createCard(deckId, request).enqueue(new Callback<ApiResponse<Card>>() {

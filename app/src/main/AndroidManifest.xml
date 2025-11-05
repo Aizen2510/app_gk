@@ -43,6 +43,10 @@
             android:name=".StudyActivity"
             android:exported="false"
             android:parentActivityName=".DeckActivity"/>
+
+        <activity android:name=".StatsActivity"
+            android:exported="false"
+            android:parentActivityName=".DeckActivity"/>
             
     </application>
 

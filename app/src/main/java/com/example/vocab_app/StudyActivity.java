@@ -55,12 +55,13 @@ public class StudyActivity extends AppCompatActivity {
         binding.flashcard.setOnClickListener(v -> flipCard());
         binding.previousButton.setOnClickListener(v -> previousCard());
         binding.nextButton.setOnClickListener(v -> nextCard());
+        binding.memorized.setOnClickListener(v -> onMemorizedCard()); // the ghi nho o file study_activity.xml
         
         loadStudyCards();
     }
     
     private void loadStudyCards() {
-        apiService.getCards(deckId, 1, 100, null, null, "createdAt", "desc")
+        apiService.getCards(deckId, 1, 100, null, "false", "createdAt", "desc")
                 .enqueue(new Callback<ApiResponse<List<Card>>>() {
             @Override
             public void onResponse(Call<ApiResponse<List<Card>>> call, Response<ApiResponse<List<Card>>> response) {
@@ -151,5 +152,38 @@ public class StudyActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Study session complete!", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    // xu li logic ghi nho
+    private void onMemorizedCard() {
+        if (cards.isEmpty()) return;
+        Card card = cards.get(currentCardIndex);
+        apiService.toggleCardMemorized(card.getId()).enqueue(new retrofit2.Callback<com.example.vocab_app.models.ApiResponse<Card>>() {
+            @Override
+            public void onResponse(retrofit2.Call<com.example.vocab_app.models.ApiResponse<Card>> call, retrofit2.Response<com.example.vocab_app.models.ApiResponse<Card>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    card.setMemorized(!card.isMemorized());
+                    Toast.makeText(StudyActivity.this, "This card has been saved", Toast.LENGTH_SHORT).show();
+                    // Xóa thẻ khỏi danh sách đang học
+                    cards.remove(currentCardIndex);
+                    if (cards.isEmpty()) {
+                        Toast.makeText(StudyActivity.this, "You have completed all the cards!", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        if (currentCardIndex >= cards.size()) {
+                            currentCardIndex = cards.size() - 1;
+                        }
+                        showCard();
+                    }
+                } else {
+                    Toast.makeText(StudyActivity.this, "Error updating memo status", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<com.example.vocab_app.models.ApiResponse<Card>> call, Throwable t) {
+                Toast.makeText(StudyActivity.this, "Error Internet: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

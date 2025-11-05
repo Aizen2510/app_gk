@@ -33,7 +33,8 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.CardViewHolder
         this.cards = cards;
         notifyDataSetChanged();
     }
-    
+
+    //Viewholder
     @NonNull
     @Override
     public CardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

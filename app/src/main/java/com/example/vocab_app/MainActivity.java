@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -48,6 +49,21 @@ public class MainActivity extends AppCompatActivity implements DeckAdapter.OnDec
         
         binding.addDeckFab.setOnClickListener(v -> showAddDeckDialog());
         binding.swipeRefresh.setOnRefreshListener(() -> loadDecks());
+
+        binding.searchDeckInput.setOnEditorActionListener((v, actionId, event) -> {
+            doSearchDecks();
+            return true;
+        });
+        // Tự reload khi ô tìm kiếm rỗng
+        binding.searchDeckInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(android.text.Editable s) {
+                if (s.toString().trim().isEmpty()) {
+                    loadDecks();
+                }
+            }
+        });
         
         loadDecks();
     }
@@ -56,6 +72,33 @@ public class MainActivity extends AppCompatActivity implements DeckAdapter.OnDec
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
+    }
+
+    private void doSearchDecks() {
+        String q = binding.searchDeckInput.getText().toString().trim();
+        if (q.isEmpty()) {
+            loadDecks();
+            return;
+        }
+        binding.swipeRefresh.setRefreshing(true);
+        apiService.searchDecks(q, 1, 100).enqueue(new Callback<ApiResponse<List<Deck>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Deck>>> call, Response<ApiResponse<List<Deck>>> response) {
+                binding.swipeRefresh.setRefreshing(false);
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    List<Deck> decks = response.body().getData();
+                    adapter.setDecks(decks);
+                } else {
+                    Toast.makeText(MainActivity.this, "Search failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Deck>>> call, Throwable t) {
+                binding.swipeRefresh.setRefreshing(false);
+                Toast.makeText(MainActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     
     @Override
@@ -94,37 +137,33 @@ public class MainActivity extends AppCompatActivity implements DeckAdapter.OnDec
             }
         });
     }
-    
+
+    // o them deck
     private void showAddDeckDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Create New Deck");
-        
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 20, 50, 20);
-        
-        EditText nameInput = new EditText(this);
-        nameInput.setHint("Deck Name");
-        layout.addView(nameInput);
-        
-        EditText descInput = new EditText(this);
-        descInput.setHint("Description");
-        layout.addView(descInput);
-        
-        builder.setView(layout);
+
+        View view = getLayoutInflater().inflate(R.layout.input_mainactivity, null);
+        EditText nameInput = view.findViewById(R.id.inputDeckName);
+        EditText descInput = view.findViewById(R.id.inputDeckDescription);
+
+        builder.setView(view);
+
         builder.setPositiveButton("Create", (dialog, which) -> {
             String name = nameInput.getText().toString().trim();
             String description = descInput.getText().toString().trim();
-            
+
             if (!name.isEmpty()) {
                 createDeck(name, description);
             } else {
                 Toast.makeText(this, "Please enter a deck name", Toast.LENGTH_SHORT).show();
             }
         });
+
         builder.setNegativeButton("Cancel", null);
         builder.show();
     }
+
     
     private void createDeck(String name, String description) {
         CreateDeckRequest request = new CreateDeckRequest(name, description);

@@ -4,6 +4,11 @@
     <item
         android:id="@+id/action_logout"
         android:title="Logout"
-        android:icon="@android:drawable/ic_lock_power_off"
         app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/statistical"
+        android:title="Statistical"
+        app:showAsAction="never"
+    />
 </menu>
